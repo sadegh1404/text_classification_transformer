@@ -13,7 +13,7 @@ from predict import Predictor
 
 app = FastAPI()
 
-opposition_config = OmegaConf.load('configs/security.yaml')
+opposition_config = OmegaConf.load('configs/opposition.yaml')
 opposition_model = Predictor(opposition_config)
 
 security_config = OmegaConf.load('configs/security.yaml')
@@ -24,7 +24,6 @@ configs = {'security': security_config, 'opposition': opposition_config}
 
 
 class JsonInput(BaseModel):
-    task: str = Literal['security', 'opposition']
     include_meta: bool = True
     output_type: str = 'prob_all_classes'
     output_format: str = 'dict'
@@ -58,6 +57,7 @@ def shahab_classification(inputs, task):
     for text_dict in text_list:
         text = text_dict['text']
         logits, exec_time = model(text)
+        print(logits)
         class_probs_list = create_output_probs_dict(logits, idx2label)
         result = {'response': {'predicted_list': [], 'text': text}}
         for class_prob_dict in class_probs_list:
@@ -80,7 +80,7 @@ def create_output_probs_dict(logits: np.array, idx2label_mapper):
     logit_indice_stack = np.column_stack((sorted_indices, logits))
     output_list = []
     for index, prob in logit_indice_stack:
-        label = idx2label_mapper[index]
+        label = idx2label_mapper[int(index)]
         d = {'predicted_class': label,
              'probability': prob}
         output_list.append(d)

@@ -10,7 +10,7 @@ lr: 2e-5
 num_classes: 2
 num_epochs: 150
 save_ckpt_freq: 1
-ckpt_dir: 'checkpoints/opposition/v2'
+ckpt_dir: 'checkpoints/opposition/v1'
 resume_checkpoint: null
-weights_file: 'checkpoints/opposition/v2/37.pt'
+weights_file: 'checkpoints/opposition/v2/88.pt'
 log_dir: 'logs'

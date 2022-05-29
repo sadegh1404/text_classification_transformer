@@ -17,6 +17,7 @@ class Predictor:
         self.config.num_classes = self.num_classes
         self.model = BertTextClassification(config)
         self.model.load_state_dict(checkpoint['model'])
+        self.model.eval()
         self.tokenizer = AutoTokenizer.from_pretrained(config.model_checkpoint)
 
     def clean_text(self, text):
@@ -27,8 +28,8 @@ class Predictor:
     @time_it
     def __call__(self, input_text: str):
         input_text = self.clean_text(input_text)
-        inputs = self.tokenizer(input_text, truncation=True, return_tensors='pt', return_attention_mask=False)
         with torch.no_grad():
+            inputs = self.tokenizer(input_text, return_tensors='pt')
             outputs = self.model(**inputs).softmax(1).squeeze(0)
         return outputs.numpy()
 
