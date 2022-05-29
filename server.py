@@ -1,3 +1,7 @@
+import argparse
+
+import uvicorn
+
 from typing import *
 
 import numpy as np
@@ -5,8 +9,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from omegaconf import OmegaConf
 
-from predict import Predictor
-from utils import time_it
+from src.predict import Predictor
 
 app = FastAPI()
 
@@ -34,9 +37,18 @@ class JsonInput(BaseModel):
                   {"text": "جمله دوم را اینجا وارد کنید و با همین فرمت جملات بیشتر را وارد کنید"}]
 
 
-@app.post('/shahab/political_classification')
-def shahab_classification(inputs: JsonInput):
-    model = models[inputs.task]
+@app.post('/shahab/opposition')
+def opposition(inputs: JsonInput):
+    return shahab_classification(inputs, task='opposition')
+
+
+@app.post('/shahab/security')
+def opposition(inputs: JsonInput):
+    return shahab_classification(inputs, task='security')
+
+
+def shahab_classification(inputs, task):
+    model = models[task]
     config = configs[inputs.task]
     idx2label = idx2labels[inputs.task]
     text_list = inputs.data
@@ -79,3 +91,10 @@ def create_output_probs_dict(logits: np.array, idx2label_mapper):
              'probability': prob}
         output_list.append(d)
     return output_list
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--port')
+    parser.add_argument('--weight_file')
+    uvicorn.run(app)

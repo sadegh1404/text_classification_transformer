@@ -31,26 +31,6 @@ class AverageMeter(object):
         return fmtstr.format(**self.__dict__)
 
 
-def maybe_save_checkpoint(model, path, epoch_num, save_freq):
-    """
-    Save a checkpoint
-    Args:
-        model: a nn.Module instance
-        path: path to save checkpoint to
-        epoch_num: current epoch number
-        save_freq: save frequency based on epoch number
-
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)
-    path = os.path.join(path, f'{epoch_num}.pt')
-    if epoch_num % save_freq == 0:
-        checkpoint = {'model': model.state_dict(),
-                      'epoch': epoch_num}
-        torch.save(checkpoint, path)
-        print(f'Saved checkpoint to `{path}`')
-
-
 def compute_metrics(metrics: dict, preds: torch.Tensor, labels: torch.Tensor):
     results = {}
     for metric_name, metric in metrics.items():
@@ -91,4 +71,5 @@ def time_it(method):
             out = out,
         end = perf_counter()
         return tuple([*out, end - start])
+
     return inner

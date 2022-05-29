@@ -54,7 +54,7 @@ if __name__ == '__main__':
     import omegaconf
     from transformers.data import DataCollatorWithPadding
 
-    cfg = omegaconf.OmegaConf.load('config.yaml')
+    cfg = omegaconf.OmegaConf.load('../config.yaml')
     dataset = CSVTextDataset(cfg, 'train')
     data_collator = DataCollatorWithPadding(dataset.tokenizer)
     loader = DataLoader(dataset, batch_size=16, shuffle=True, collate_fn=data_collator)

@@ -1,5 +1,6 @@
 from torch import nn, optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
 from tqdm import tqdm
 from omegaconf import OmegaConf
@@ -7,7 +8,7 @@ from torchmetrics import F1Score
 
 from model import BertTextClassification
 from dataset import CSVTextDataset
-from utils import *
+from src.utils import *
 
 
 class Trainer:
@@ -29,7 +30,7 @@ class Trainer:
 
         self.config['num_classes'] = self.train_data.num_classes
         self.model = BertTextClassification(self.config)
-        self._maybe_load_from_checkpoint()
+        self.maybe_load_from_checkpoint()
         self.model.to(self.device)
         self.criterion = nn.CrossEntropyLoss()
         self.criterion.to(self.device)
@@ -40,7 +41,18 @@ class Trainer:
         self.metrics = {'loss': self.criterion, 'f1': F1Score(num_classes=self.config.num_classes)}
         self.metric_trackers = {metric_name: AverageMeter(metric_name) for metric_name in self.metrics.keys()}
 
-    def _maybe_load_from_checkpoint(self):
+    @staticmethod
+    def maybe_save_checkpoint(model, path, epoch_num, save_freq):
+        if not os.path.exists(path):
+            os.makedirs(path)
+        path = os.path.join(path, f'{epoch_num}.pt')
+        if epoch_num % save_freq == 0:
+            checkpoint = {'model': model.state_dict(),
+                          'epoch': epoch_num}
+            torch.save(checkpoint, path)
+            print(f'Saved checkpoint to `{path}`')
+
+    def maybe_load_from_checkpoint(self):
         ckpt_path = self.config.resume_checkpoint
         if ckpt_path is not None:
             ckpt = torch.load(ckpt_path)
@@ -120,7 +132,7 @@ class Trainer:
             write_to_tensorboard(self.tensorboard, train_results, 'train', epoch)
             write_to_tensorboard(self.tensorboard, val_results, 'val', epoch)
 
-            maybe_save_checkpoint(self.model, self.ckpt_dir, epoch, self.save_ckpt_freq)
+            self.maybe_save_checkpoint(self.model, self.ckpt_dir, epoch, self.save_ckpt_freq)
 
 
 if __name__ == '__main__':
