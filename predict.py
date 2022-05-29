@@ -2,17 +2,21 @@ import torch
 from omegaconf import OmegaConf
 from transformers import AutoTokenizer
 
-from model import BertTextClassification
-from utils import time_it
+from src.model import BertTextClassification
+from src.utils import time_it
 
 
 class Predictor:
     def __init__(self, config):
         self.config = config
         self.invalid_chars = config.invalid_chars
-        self.weight_path = config.weight_path  # doesn't exist in config.yaml file. must be assigned internally (see api/app.py)
+        self.weights_file = config.weights_file  # doesn't exist in security.yaml file. must be assigned internally (see api/app.py)
+        checkpoint = torch.load(self.weights_file)
+        self.idx2label = checkpoint['idx2label']
+        self.num_classes = len(list(self.idx2label.keys()))
+        self.config.num_classes = self.num_classes
         self.model = BertTextClassification(config)
-        self.model.load_state_dict(torch.load(self.weight_path)['model'])
+        self.model.load_state_dict(checkpoint['model'])
         self.tokenizer = AutoTokenizer.from_pretrained(config.model_checkpoint)
 
     def clean_text(self, text):
@@ -33,12 +37,14 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', help='path to yaml config file', default='config.yaml')
+    parser.add_argument('--config', help='path to yaml config file', default='security.yaml')
+    parser.add_argument('--weights_file', help='path to the weights file')
 
     args = parser.parse_args()
 
     config_path = args.config
     config = OmegaConf.load(config_path)
+    config.weights_path = args.weights_path
 
     predictor = Predictor(config)
 

@@ -6,8 +6,8 @@ from tqdm import tqdm
 from omegaconf import OmegaConf
 from torchmetrics import F1Score
 
-from model import BertTextClassification
-from dataset import CSVTextDataset
+from src.model import BertTextClassification
+from src.dataset import CSVTextDataset
 from src.utils import *
 
 
@@ -41,14 +41,14 @@ class Trainer:
         self.metrics = {'loss': self.criterion, 'f1': F1Score(num_classes=self.config.num_classes)}
         self.metric_trackers = {metric_name: AverageMeter(metric_name) for metric_name in self.metrics.keys()}
 
-    @staticmethod
-    def maybe_save_checkpoint(model, path, epoch_num, save_freq):
-        if not os.path.exists(path):
-            os.makedirs(path)
-        path = os.path.join(path, f'{epoch_num}.pt')
-        if epoch_num % save_freq == 0:
-            checkpoint = {'model': model.state_dict(),
-                          'epoch': epoch_num}
+    def maybe_save_checkpoint(self, epoch_num):
+        if not os.path.exists(self.ckpt_dir):
+            os.makedirs(self.ckpt_dir)
+        path = os.path.join(self.ckpt_dir, f'{epoch_num}.pt')
+        if epoch_num % self.save_ckpt_freq == 0:
+            checkpoint = {'model': self.model.state_dict(),
+                          'epoch': epoch_num,
+                          'idx2label': self.train_data.idx2label}
             torch.save(checkpoint, path)
             print(f'Saved checkpoint to `{path}`')
 
@@ -132,19 +132,4 @@ class Trainer:
             write_to_tensorboard(self.tensorboard, train_results, 'train', epoch)
             write_to_tensorboard(self.tensorboard, val_results, 'val', epoch)
 
-            self.maybe_save_checkpoint(self.model, self.ckpt_dir, epoch, self.save_ckpt_freq)
-
-
-if __name__ == '__main__':
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', help='path to yaml config file', default='config.yaml')
-
-    args = parser.parse_args()
-
-    config_path = args.config
-    config = OmegaConf.load(config_path)
-
-    trainer = Trainer(config)
-    trainer.train()
+            self.maybe_save_checkpoint(epoch)

@@ -9,21 +9,16 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from omegaconf import OmegaConf
 
-from src.predict import Predictor
+from predict import Predictor
 
 app = FastAPI()
 
-opposition_config = OmegaConf.load('config.yaml')
-opposition_config.weight_path = 'checkpoints/opposition/2_classes_v2/37.pt'
+opposition_config = OmegaConf.load('configs/security.yaml')
 opposition_model = Predictor(opposition_config)
-opposition_idx2label = {0: 'غیر معاند', 1: 'معاند'}
 
-security_config = OmegaConf.load('config.yaml')
-security_config.weight_path = 'checkpoints/security/v1/40.pt'
+security_config = OmegaConf.load('configs/security.yaml')
 security_model = Predictor(security_config)
-security_idx2label = {0: 'غیر امنیتی', 1: 'امنیتی'}
 
-idx2labels = {'security': security_idx2label, 'opposition': opposition_idx2label}
 models = {'security': security_model, 'opposition': opposition_model}
 configs = {'security': security_config, 'opposition': opposition_config}
 
@@ -49,8 +44,7 @@ def opposition(inputs: JsonInput):
 
 def shahab_classification(inputs, task):
     model = models[task]
-    config = configs[inputs.task]
-    idx2label = idx2labels[inputs.task]
+    idx2label = model.idx2label
     text_list = inputs.data
 
     results = {'result': [],
@@ -91,10 +85,3 @@ def create_output_probs_dict(logits: np.array, idx2label_mapper):
              'probability': prob}
         output_list.append(d)
     return output_list
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--port')
-    parser.add_argument('--weight_file')
-    uvicorn.run(app)

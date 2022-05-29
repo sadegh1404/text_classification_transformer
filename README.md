@@ -35,7 +35,7 @@ log_dir: null
 
 3. Run training script:
 ```bash
-python train.py --config config.yaml
+python train.py --config security.yaml
 ```
 
 4. Checkpoints will be saved at `checkpoints` and logs will be saved at `runs`.
@@ -49,7 +49,7 @@ tensorboard --logdir runs/
 ## Prediction
 Run `predict.py`:
 ```bash
-python predict.py --config config.yaml
+python predict.py --config security.yaml
 # Enter text to get predictions as [0, 1]
 ```
 
