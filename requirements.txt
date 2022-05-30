@@ -1,0 +1,9 @@
+torch==1.10.0
+transformers
+omegaconf
+tensorboard
+tqdm
+pandas
+torchmetrics
+uvicorn
+fastapi

@@ -1,0 +1,16 @@
+device: 'cpu'
+model_checkpoint: 'HooshvareLab/distilbert-fa-zwnj-base'
+data_path: 'data/security_telegram_channel_post_1581158577_half_vector_w10_d100_top_security_notsecurity'
+batch_size: 16
+max_length: 150
+invalid_chars: ['rt:', '@', '#']
+dropout: 0.1
+hidden_size: 768
+lr: 2e-5
+num_classes: 2
+num_epochs: 150
+save_ckpt_freq: 1
+ckpt_dir: 'checkpoints/security/v1'
+resume_checkpoint: null
+weights_file: 'checkpoints/security/v2/80.pt'
+log_dir: 'logs'
