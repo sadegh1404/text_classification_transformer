@@ -1,4 +1,3 @@
-torch==1.10.0
 transformers
 omegaconf
 tensorboard
@@ -7,3 +6,4 @@ pandas
 torchmetrics
 uvicorn
 fastapi
+protobuf==3.20.0
