@@ -15,7 +15,7 @@ class CSVTextDataset(Dataset):
         self.split = split
         self.df = self._load_raw()
         self._extract_labels(self.df)
-        self.tokenizer = AutoTokenizer.from_pretrained(self.config.model_checkpoint)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config.lm_checkpoint)
         self.collate_fn = DataCollatorWithPadding(self.tokenizer)
 
     def _load_raw(self):

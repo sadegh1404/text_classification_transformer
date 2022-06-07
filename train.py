@@ -6,7 +6,7 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', help='path to yaml config file', default='security.yaml')
+    parser.add_argument('--config', help='path to yaml config file', default='configs/security.yaml')
 
     args = parser.parse_args()
 

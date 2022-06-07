@@ -18,7 +18,7 @@ class Predictor:
         self.model = BertTextClassification(config)
         self.model.load_state_dict(checkpoint['model'])
         self.model.eval()
-        self.tokenizer = AutoTokenizer.from_pretrained(config.model_checkpoint)
+        self.tokenizer = AutoTokenizer.from_pretrained(config.lm_checkpoint)
 
     def clean_text(self, text):
         for char in self.invalid_chars:

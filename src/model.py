@@ -6,7 +6,7 @@ from transformers import AutoModel, AutoConfig
 class BertTextClassification(nn.Module):
     """
     A Bert-based transformer model for text classification. Not necessarily the exact BERT model but any BERT derivative
-    and depends on `config.model_checkpoint`.
+    and depends on `config.lm_checkpoint`.
 
     Args:
         config: a DictConfig object containing model properties
@@ -14,7 +14,7 @@ class BertTextClassification(nn.Module):
     def __init__(self, config):
         super(BertTextClassification, self).__init__()
         self.config = config
-        model_config = AutoConfig.from_pretrained(config.model_checkpoint)
+        model_config = AutoConfig.from_pretrained(config.lm_checkpoint)
         self.bert = AutoModel.from_config(model_config)
         self.fc_hidden = nn.Linear(config.hidden_size, config.hidden_size)
         self.relu = nn.ReLU()
@@ -22,7 +22,7 @@ class BertTextClassification(nn.Module):
         self.classifier = nn.Linear(config.hidden_size, config.num_classes)
 
     def load_lm_weights(self):
-        self.bert = AutoModel.from_pretrained(self.config.model_checkpoint)
+        self.bert = AutoModel.from_pretrained(self.config.lm_checkpoint)
 
     def forward(self, input_ids, attention_mask=None):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)[0]

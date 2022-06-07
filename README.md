@@ -16,7 +16,7 @@ pip install -r requirements.txt
 2. Configure properties in `config.yaml`
 ```yaml
 device: 'cpu'
-model_checkpoint: 'HooshvareLab/distilbert-fa-zwnj-base'
+lm_checkpoint: 'HooshvareLab/distilbert-fa-zwnj-base'
 data_path: 'data/opposition_classification_telegram_channel_post_1581158577_half_vector_w10_d100_top_text_based_tlg'
 batch_size: 4
 max_length: 150

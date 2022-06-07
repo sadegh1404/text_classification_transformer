@@ -57,7 +57,6 @@ def shahab_classification(inputs, task):
     for text_dict in text_list:
         text = text_dict['text']
         logits, exec_time = model(text)
-        print(logits)
         class_probs_list = create_output_probs_dict(logits, idx2label)
         result = {'response': {'predicted_list': [], 'text': text}}
         for class_prob_dict in class_probs_list:

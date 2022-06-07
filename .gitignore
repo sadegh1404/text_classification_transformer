@@ -127,3 +127,4 @@ bank_card/cards
 logs/
 checkpoints/
 runs/
+weights/
