@@ -30,6 +30,7 @@ class Trainer:
 
         self.config['num_classes'] = self.train_data.num_classes
         self.model = BertTextClassification(self.config)
+        self.model.load_lm_weights()
         self.maybe_load_from_checkpoint()
         self.model.to(self.device)
         self.criterion = nn.CrossEntropyLoss()

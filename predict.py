@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     config_path = args.config
     config = OmegaConf.load(config_path)
-    config.weights_path = args.weights_path
+    config.weights_file = args.weights_file
 
     predictor = Predictor(config)
 

@@ -13,11 +13,16 @@ class BertTextClassification(nn.Module):
     """
     def __init__(self, config):
         super(BertTextClassification, self).__init__()
-        self.bert = AutoModel.from_pretrained(config.model_checkpoint)
+        self.config = config
+        model_config = AutoConfig.from_pretrained(config.model_checkpoint)
+        self.bert = AutoModel.from_config(model_config)
         self.fc_hidden = nn.Linear(config.hidden_size, config.hidden_size)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(config.dropout)
         self.classifier = nn.Linear(config.hidden_size, config.num_classes)
+
+    def load_lm_weights(self):
+        self.bert = AutoModel.from_pretrained(self.config.model_checkpoint)
 
     def forward(self, input_ids, attention_mask=None):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)[0]
