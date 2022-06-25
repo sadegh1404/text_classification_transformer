@@ -3,7 +3,6 @@ import re
 import torch
 from omegaconf import OmegaConf
 from transformers import AutoTokenizer
-import persian
 
 from src.model import BertTextClassification
 from src.utils import time_it
@@ -25,6 +24,12 @@ class Predictor:
         self.tokenizer = AutoTokenizer.from_pretrained(config.lm_checkpoint)
 
     def clean_text(self, text):
+        text = text.split(' ')
+        for word in text:
+            if word.isascii() and not word.isnumeric():
+                text.remove(word)
+                print(f'removed {word}')
+        text = " ".join(text)
         for char in text:
             if char not in self.valid_chars:
                 text = text.replace(char, '')
