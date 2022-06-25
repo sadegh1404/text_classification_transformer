@@ -7,3 +7,4 @@ torchmetrics
 uvicorn
 fastapi
 protobuf==3.20.0
+persian

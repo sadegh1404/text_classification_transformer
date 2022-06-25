@@ -1,6 +1,9 @@
+import re
+
 import torch
 from omegaconf import OmegaConf
 from transformers import AutoTokenizer
+import persian
 
 from src.model import BertTextClassification
 from src.utils import time_it
@@ -9,7 +12,8 @@ from src.utils import time_it
 class Predictor:
     def __init__(self, config):
         self.config = config
-        self.invalid_chars = config.invalid_chars
+        self.valid_chars = list(config.valid_chars)
+        print(self.valid_chars)
         self.weights_file = config.weights_file  # doesn't exist in security.yaml file. must be assigned internally (see api/app.py)
         checkpoint = torch.load(self.weights_file)
         self.idx2label = checkpoint['idx2label']
@@ -21,15 +25,20 @@ class Predictor:
         self.tokenizer = AutoTokenizer.from_pretrained(config.lm_checkpoint)
 
     def clean_text(self, text):
-        for char in self.invalid_chars:
-            text = text.replace(char, '')
+        for char in text:
+            if char not in self.valid_chars:
+                text = text.replace(char, '')
+        text = text.replace('_', ' ').replace('-', ' ')
         return text
 
     @time_it
     def __call__(self, input_text: str):
+        print(input_text)
         input_text = self.clean_text(input_text)
+        print(input_text)
         with torch.no_grad():
             inputs = self.tokenizer(input_text, return_tensors='pt')
+            print(inputs['input_ids'])
             outputs = self.model(**inputs).softmax(1).squeeze(0)
         return outputs.numpy()
 
