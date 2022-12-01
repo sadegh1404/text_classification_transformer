@@ -1,11 +1,5 @@
-## Shahab with BERT
-
-In this project, a DistilBERT model is trained for text classification. There are two datasets:
-
-- Opposition classification
-- Security classification
-
-Datasets are located at `data`.
+## Text Classification with HuggingFace Transformers
+Train text classification models using HuggingFace Transformers
 
 ### **Train**
 1. First install requirements:
@@ -15,45 +9,38 @@ pip install -r requirements.txt
 
 2. Configure properties in `config.yaml`
 ```yaml
-device: 'cpu'
-lm_checkpoint: 'HooshvareLab/distilbert-fa-zwnj-base'
-data_path: 'data/opposition_classification_telegram_channel_post_1581158577_half_vector_w10_d100_top_text_based_tlg'
-batch_size: 4
-max_length: 150
+name: sentiment_marketing
+model_name: bert-fa-zwnj-base
+device: 'cuda'
+lm_checkpoint: 'weights/${model_name}'
+data_path: 'data/${name}'
+batch_size: 16
+max_length: 256
 invalid_chars: ['rt:', '@', '#']
-dropout: 0.1
-hidden_size: 768
 lr: 2e-5
-num_classes: 2
-num_epochs: 100
+num_epochs: 10
 save_ckpt_freq: 1
-ckpt_dir: 'checkpoints'
-resume_checkpoint: null
-log_dir: null
+ckpt_dir: 'checkpoints/${name}/${model_name}'
+weight_path: 'checkpoints/${name}/${model_name}/5'
+log_dir: 'logs'
 
 ```
 
 3. Run training script:
 ```bash
-python train.py --config security.yaml
+python train.py --config configs/sentiment.yaml
 ```
 
 4. Checkpoints will be saved at `checkpoints` and logs will be saved at `runs`.
-- Resume Training: pass in a path to a checkpoint file (.pt) to `resume_checkpoint` in `config.yaml`
 - Inspect logs by running:
 ```bash
 tensorboard --logdir runs/
 # Browse to http://localhost:6006/
 ```
 
-## Prediction
-Run `predict.py`:
+## API
+Run the following to start up FastAPI server:
 ```bash
-python predict.py --config security.yaml
-# Enter text to get predictions as [0, 1]
+uvicorn api.app:app --port 5000
 ```
 
-### TODO
-- [ ] Add docstring to codes
-- [ ] Generalize implementation for other tasks
-- [ ] Integrate mlflow
