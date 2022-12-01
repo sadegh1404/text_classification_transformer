@@ -1,4 +1,4 @@
-device: 'cpu'
+device: 'cuda'
 lm_checkpoint: 'weights/distilbert-fa-zwnj-base'
 data_path: 'data/security_telegram_channel_post_1581158577_half_vector_w10_d100_top_security_notsecurity'
 batch_size: 16
