@@ -128,4 +128,4 @@ logs/
 checkpoints/
 runs/
 weights/
-shahab_classification_distilbert.tar
+data/
