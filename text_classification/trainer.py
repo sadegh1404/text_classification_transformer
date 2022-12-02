@@ -20,6 +20,7 @@ class Trainer:
         self.num_epochs = self.config.num_epochs
         self.save_ckpt_freq = self.config.save_ckpt_freq
         self.ckpt_dir = self.config.ckpt_dir
+        self.bar_format = '{desc:<16}{percentage:3.0f}%|{bar:70}{r_bar}'
 
         self.train_data = CSVTextDataset(config, 'train')
         self.test_data = CSVTextDataset(config, 'test')
@@ -28,11 +29,11 @@ class Trainer:
                                        shuffle=True, collate_fn=self.train_data.collate_fn)
         self.test_loader = DataLoader(self.test_data, batch_size=self.batch_size,
                                       shuffle=True, collate_fn=self.test_data.collate_fn)
-
         self.config['id2label'] = self.train_data.id2label
+
         self.model = TransformerTextClassification(self.config, mode='training')
-        self.criterion = nn.CrossEntropyLoss()
-        self.criterion.to(self.device)
+
+        self.criterion = nn.CrossEntropyLoss().to(self.device)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.config.lr)
 
         self.tensorboard = SummaryWriter()
@@ -81,8 +82,12 @@ class Trainer:
         self.model.train()
         self.model.freeze_lm_weights()
         reset_trackers(self.metric_trackers)
-        with tqdm(self.train_loader, unit="batch", desc=f'Epoch: {epoch}/{self.num_epochs} ',
-                  bar_format='{desc:<16}{percentage:3.0f}%|{bar:70}{r_bar}', ascii=" #") as iterator:
+        with tqdm(self.train_loader,
+                  unit="batch",
+                  desc=f'Epoch: {epoch}/{self.num_epochs} ',
+                  bar_format=self.bar_format,
+                  ascii=" #") as iterator:
+
             for batch in iterator:
                 results = self.train_step(batch)
                 update_trackers(self.metric_trackers, results)
@@ -94,8 +99,12 @@ class Trainer:
     def evaluate(self):
         self.model.eval()
         reset_trackers(self.metric_trackers)
-        with tqdm(self.test_loader, unit="batch", desc=f'Evaluating... ',
-                  bar_format='{desc:<16}{percentage:3.0f}%|{bar:70}{r_bar}', ascii=" #") as iterator:
+        with tqdm(self.test_loader,
+                  unit="batch",
+                  desc=f'Evaluating... ',
+                  bar_format=self.bar_format,
+                  ascii=" #") as iterator:
+
             with torch.no_grad():
                 for batch in iterator:
                     results = self.test_step(batch)

@@ -36,7 +36,7 @@ class TransformerTextClassification(nn.Module):
 
     def build_tokenizer(self):
         tokenizer = AutoTokenizer.from_pretrained(self.config.lm_checkpoint)
-        logging.info(f'Loaded model `{tokenizer.name_or_path}`')
+        logging.info(f'Loaded tokenizer `{tokenizer.name_or_path}`')
         return tokenizer
 
     def freeze_lm_weights(self):
