@@ -15,11 +15,11 @@ from .utils import *
 class Trainer:
     def __init__(self, config):
         self.config = config
-        self.device = self.config.device
-        self.batch_size = self.config.batch_size
-        self.num_epochs = self.config.num_epochs
-        self.save_ckpt_freq = self.config.save_ckpt_freq
-        self.ckpt_dir = self.config.ckpt_dir
+        self.device = self.config.train.device
+        self.batch_size = self.config.train.batch_size
+        self.num_epochs = self.config.train.num_epochs
+        self.save_ckpt_freq = self.config.train.save_ckpt_freq
+        self.ckpt_dir = self.config.train.ckpt_dir
         self.bar_format = '{desc:<16}{percentage:3.0f}%|{bar:70}{r_bar}'
 
         self.train_data = CSVTextDataset(config, 'train')
@@ -29,16 +29,16 @@ class Trainer:
                                        shuffle=True, collate_fn=self.train_data.collate_fn)
         self.test_loader = DataLoader(self.test_data, batch_size=self.batch_size,
                                       shuffle=True, collate_fn=self.test_data.collate_fn)
-        self.config['id2label'] = self.train_data.id2label
+        self.config.data['id2label'] = self.train_data.id2label
 
         self.model = TransformerTextClassification(self.config, mode='training')
 
         self.criterion = nn.CrossEntropyLoss().to(self.device)
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.config.lr)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.config.train.lr)
 
         self.tensorboard = SummaryWriter()
 
-        self.metrics = {'loss': self.criterion, 'f1': F1Score(num_classes=len(self.config.id2label))}
+        self.metrics = {'loss': self.criterion, 'f1': F1Score(num_classes=len(self.config.data.id2label))}
         self.metric_trackers = {metric_name: AverageMeter(metric_name) for metric_name in self.metrics.keys()}
 
     def maybe_save_checkpoint(self, epoch_num):

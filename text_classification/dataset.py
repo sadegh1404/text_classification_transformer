@@ -10,15 +10,15 @@ class CSVTextDataset(Dataset):
     def __init__(self, config, split):
         super(CSVTextDataset, self).__init__()
         self.config = config
-        self.invalid_chars: list = config.invalid_chars
+        self.invalid_chars: list = config.data.invalid_chars
         self.split = split
         self.df = self._load_raw()
         self._extract_labels(self.df)
-        self.tokenizer = AutoTokenizer.from_pretrained(self.config.lm_checkpoint, max_length=config.max_length)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config.model.lm_path, max_length=config.data.max_length)
         self.collate_fn = DataCollatorWithPadding(self.tokenizer)
 
     def _load_raw(self):
-        csv_path = f'{self.config.data_path}_{self.split}.csv'
+        csv_path = f'{self.config.data.path}_{self.split}.csv'
         df = pd.read_csv(csv_path)
         return df
 
@@ -57,7 +57,7 @@ class CSVTextDataset(Dataset):
 if __name__ == '__main__':
     import omegaconf
 
-    cfg = omegaconf.OmegaConf.load('../configs/security.yaml')
+    cfg = omegaconf.OmegaConf.load('../configs/sentiment.yaml')
     dataset = CSVTextDataset(cfg, 'train')
     data_collator = DataCollatorWithPadding(dataset.tokenizer)
     loader = DataLoader(dataset, batch_size=16, shuffle=True, collate_fn=data_collator)

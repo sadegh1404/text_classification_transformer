@@ -16,26 +16,32 @@ class TransformerTextClassification(nn.Module):
     def __init__(self, config, mode: Literal['training', 'inference']):
         super().__init__()
         self.config = config
+        self.device = config.inference.device if mode == 'inference' else config.train.device
         self.model = self.build_model(mode=mode)
-        self.tokenizer = self.build_tokenizer()
+        self.tokenizer = self.build_tokenizer(mode=mode)
 
     def build_model(self, mode):
         if mode == 'training':
-            model = AutoModelForSequenceClassification.from_pretrained(self.config.lm_checkpoint,
-                                                                       id2label=dict(self.config.id2label))
+            model = AutoModelForSequenceClassification.from_pretrained(self.config.model.lm_path,
+                                                                       id2label=dict(self.config.data.id2label))
         elif mode == 'inference':
-            model = AutoModelForSequenceClassification.from_pretrained(self.config.weight_path)
+            model = AutoModelForSequenceClassification.from_pretrained(self.config.inference.weights_path)
         else:
             raise ValueError(f'Invalid `mode`: {mode}')
 
         logging.info(f'Loaded model `{model.name_or_path}`')
 
-        model.to(self.config.device)
+        model.to(self.device)
 
         return model
 
-    def build_tokenizer(self):
-        tokenizer = AutoTokenizer.from_pretrained(self.config.lm_checkpoint)
+    def build_tokenizer(self, mode):
+        if mode == 'inference':
+            path = self.config.inference.weights_path
+        else:
+            path = self.config.model.lm_path
+
+        tokenizer = AutoTokenizer.from_pretrained(path)
         logging.info(f'Loaded tokenizer `{tokenizer.name_or_path}`')
         return tokenizer
 
@@ -52,12 +58,12 @@ class TransformerTextClassification(nn.Module):
         raw_inputs = inputs[:]
         if isinstance(inputs, str):
             inputs = [inputs]
-        inputs = [clean_text(x, self.config.invalid_chars) for x in inputs]
+        inputs = [clean_text(x, self.config.data.invalid_chars) for x in inputs]
         inputs = self.tokenizer(inputs, padding=True,
                                 truncation=True,
-                                max_length=self.config.max_length,
+                                max_length=self.config.data.max_length,
                                 return_tensors='pt')
-        inputs.to(self.config.device)
+        inputs.to(self.device)
         # model forward
         with torch.inference_mode():
             output = self.model(**inputs)
