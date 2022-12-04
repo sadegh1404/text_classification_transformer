@@ -14,11 +14,11 @@ class CSVTextDataset(Dataset):
         self.split = split
         self.df = self._load_raw()
         self._extract_labels(self.df)
-        self.tokenizer = AutoTokenizer.from_pretrained(self.config.data.lm_path, max_length=config.data.max_length)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config.model.lm_path, max_length=config.data.max_length)
         self.collate_fn = DataCollatorWithPadding(self.tokenizer)
 
     def _load_raw(self):
-        csv_path = f'{self.config.data.name}_{self.split}.csv'
+        csv_path = f'{self.config.data.path}_{self.split}.csv'
         df = pd.read_csv(csv_path)
         return df
 

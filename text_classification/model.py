@@ -25,21 +25,21 @@ class TransformerTextClassification(nn.Module):
             model = AutoModelForSequenceClassification.from_pretrained(self.config.model.lm_path,
                                                                        id2label=dict(self.config.data.id2label))
         elif mode == 'inference':
-            model = AutoModelForSequenceClassification.from_pretrained(self.config.inference.weight_path)
+            model = AutoModelForSequenceClassification.from_pretrained(self.config.inference.weights_path)
         else:
             raise ValueError(f'Invalid `mode`: {mode}')
 
         logging.info(f'Loaded model `{model.name_or_path}`')
 
-        self.model.to(self.device)
+        model.to(self.device)
 
         return model
 
     def build_tokenizer(self, mode):
         if mode == 'inference':
-            path = self.config.inference.weight_path
+            path = self.config.inference.weights_path
         else:
-            path = self.config.train.lm_path
+            path = self.config.model.lm_path
 
         tokenizer = AutoTokenizer.from_pretrained(path)
         logging.info(f'Loaded tokenizer `{tokenizer.name_or_path}`')

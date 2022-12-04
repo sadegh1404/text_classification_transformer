@@ -1,6 +1,7 @@
 name: ${model.name}-${data.name}
 data:
   name: sentiment-marketing
+  path: data/${data.name}
   invalid_chars: ['rt:', '@', '#']
   max_length: 256
 model:
@@ -11,6 +12,7 @@ train:
   batch_size: 16
   lr: 2e-5
   num_epochs: 10
+  ckpt_dir: 'checkpoints/${model.name}/${data.name}'
   save_ckpt_freq: 1
   log_dir: 'logs'
 inference:
