@@ -1,14 +1,18 @@
-name: sentiment_marketing
-model_name: bert-fa-zwnj-base
-device: 'cuda'
-lm_checkpoint: 'weights/${model_name}'
-data_path: 'data/${name}'
-batch_size: 16
-max_length: 256
-invalid_chars: ['rt:', '@', '#']
-lr: 2e-5
-num_epochs: 10
-save_ckpt_freq: 1
-ckpt_dir: 'checkpoints/${name}/${model_name}'
-weight_path: 'checkpoints/${name}/${model_name}/5'
-log_dir: 'logs'
+name: ${model.name}-${data.name}
+data:
+  name: sentiment-marketing
+  invalid_chars: ['rt:', '@', '#']
+  max_length: 256
+model:
+  name: bert-fa-zwnj-base
+  lm_path: 'weights/${model.name}'
+train:
+  device: 'cuda'
+  batch_size: 16
+  lr: 2e-5
+  num_epochs: 10
+  save_ckpt_freq: 1
+  log_dir: 'logs'
+inference:
+  device: 'cpu'
+  weights_path: 'weights/${model.name}-${data.name}'
