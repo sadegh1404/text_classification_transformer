@@ -70,7 +70,7 @@ class TransformerTextClassification(nn.Module):
         # post-process
         logits = output['logits'].detach().cpu()
         prediction_ids = logits.softmax(1).argmax(1)
-        prediction_probs = logits.softmax(1).max(1)
+        prediction_probs = logits.softmax(1).numpy().max(1)
         prediction_labels = [self.model.config.id2label[x.item()] for x in prediction_ids]
 
         outputs = []
