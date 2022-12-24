@@ -6,9 +6,9 @@ data:
   max_length: 256
 model:
   name: bert-fa-zwnj-base
-  lm_path: 'weights/${model.name}'
+  lm_path: 'weights/${name}'
 train:
-  device: 'cuda'
+  device: 'cpu'
   batch_size: 16
   lr: 2e-5
   num_epochs: 10

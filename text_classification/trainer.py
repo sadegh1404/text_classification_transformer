@@ -37,8 +37,8 @@ class Trainer:
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.config.train.lr)
 
         self.tensorboard = SummaryWriter()
-
-        self.metrics = {'loss': self.criterion, 'f1': F1Score(num_classes=len(self.config.data.id2label))}
+        self.metrics = {'loss': self.criterion,
+                        'f1': F1Score(task="multiclass", num_classes=len(self.config.data.id2label))}
         self.metric_trackers = {metric_name: AverageMeter(metric_name) for metric_name in self.metrics.keys()}
 
     def maybe_save_checkpoint(self, epoch_num):
@@ -87,7 +87,6 @@ class Trainer:
                   desc=f'Epoch: {epoch}/{self.num_epochs} ',
                   bar_format=self.bar_format,
                   ascii=" #") as iterator:
-
             for batch in iterator:
                 results = self.train_step(batch)
                 update_trackers(self.metric_trackers, results)
@@ -104,7 +103,6 @@ class Trainer:
                   desc=f'Evaluating... ',
                   bar_format=self.bar_format,
                   ascii=" #") as iterator:
-
             with torch.no_grad():
                 for batch in iterator:
                     results = self.test_step(batch)
